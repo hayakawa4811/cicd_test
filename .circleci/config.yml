@@ -7,9 +7,13 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Stylelint, ESLint
+          name: Install HTMLHint, Stylelint, ESLint
           command: |
-            npm install -g stylelint stylelint-config-standard eslint
+            npm install -g htmlhint stylelint stylelint-config-standard eslint
+      - run:
+          name: Lint HTML
+          command: |
+            htmlhint index.html
       - run:
           name: Lint CSS
           command: |
