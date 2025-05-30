@@ -1,32 +1,30 @@
 version: 2.1
-
-jobs:
-  validate:
+executors:
+  node-executor:
     docker:
-      - image: cimg/node:18.20.2
+      - image: cimg/node:18.20.5
+    working_directory: ~/project
+jobs:
+  test:
+    executor: node-executor
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - yarn-cache-{{ checksum "yarn.lock" }}
+            - yarn-cache-
       - run:
-          name: Install HTMLHint, Stylelint, ESLint
-          command: |
-            npm install -g htmlhint stylelint stylelint-config-standard eslint
+          name: Install dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          paths:
+            - ~/.cache/yarn
+          key: yarn-cache-{{ checksum "yarn.lock" }}
       - run:
-          name: Lint HTML
-          command: |
-            htmlhint index.html
-      - run:
-          name: Lint CSS
-          command: |
-            echo '{ "extends": "stylelint-config-standard" }' > .stylelintrc.json
-            stylelint "**/*.css"
-      - run:
-          name: Lint JS
-          command: |
-            eslint --init --yes
-            eslint script.js
-
+          name: Run tests
+          command: yarn test
 workflows:
   version: 2
-  test-site:
+  test:
     jobs:
-      - validate
+      - test
